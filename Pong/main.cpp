@@ -8,6 +8,7 @@
 
 #include <SDL2/SDL.h>
 #include <iostream>
+#include <stdlib.h>
 
 
 const int SCREEN_WIDTH = 640;
@@ -47,8 +48,13 @@ private:
 Dot::Dot(){
     mPosX = SCREEN_WIDTH / 2;
     mPosY = SCREENT_HEIGHT / 2;
-    mVelX = 0;
-    mVelY = 0;
+    
+    // random initialize velocity in [0, DOT_VEL]
+    mVelX = rand() % DOT_VEL;
+    mVelY = rand() % DOT_VEL;
+    
+    printf("mVelX: %d\n", mVelX);
+    printf("mVelY: %d\n", mVelY);
 }
 
 void Dot::render(){
@@ -63,6 +69,7 @@ void Dot::render(){
 }
 
 void Dot::move(){
+
     mPosX += mVelX;
     
     if ((mPosX < 0) || (mPosX + DOT_WIDTH > SCREEN_WIDTH)) {
