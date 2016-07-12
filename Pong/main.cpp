@@ -2,8 +2,8 @@
 //  main.cpp
 //  Pong
 //
-//  Created by Sun, Joy (Agoda) on 7/11/2559 BE.
-//  Copyright © 2559 Xiayun Sun. All rights reserved.
+//  Created on 7/11/2016 BE.
+//  Copyright © 2016 Xiayun Sun. All rights reserved.
 //
 
 #include <SDL2/SDL.h>
@@ -24,6 +24,57 @@ SDL_Window* gWindow = NULL;
 
 // window renderer
 SDL_Renderer* gRenderer = NULL;
+
+
+class Dot{
+public:
+    static const int DOT_WIDTH = 15;
+    static const int DOT_HEIGHT = 15;
+    
+    static const int DOT_VEL = 10;
+    
+    Dot();
+    
+    void move();
+    void render();
+    
+private:
+    int mPosX, mPosY;
+    
+    int mVelX, mVelY;
+};
+
+Dot::Dot(){
+    mPosX = SCREEN_WIDTH / 2;
+    mPosY = SCREENT_HEIGHT / 2;
+    mVelX = 0;
+    mVelY = 0;
+}
+
+void Dot::render(){
+    SDL_Rect circleRect = {
+        mPosX,
+        mPosY,
+        DOT_WIDTH,
+        DOT_HEIGHT
+    };
+    SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0x00, 0xFF);
+    SDL_RenderFillRect(gRenderer, &circleRect);
+}
+
+void Dot::move(){
+    mPosX += mVelX;
+    
+    if ((mPosX < 0) || (mPosX + DOT_WIDTH > SCREEN_WIDTH)) {
+        mPosX -= mVelX; // TODO: bounce
+    }
+    
+    mPosY += mVelY;
+    
+    if ((mPosY < 0) || (mPosY + DOT_HEIGHT > SCREENT_HEIGHT)) {
+        mPosY -= mVelY;
+    }
+}
 
 
 bool init(){
@@ -79,6 +130,8 @@ int main(int argc, const char * argv[]) {
         
         SDL_Event e;
         
+        Dot dot;
+        
         while (!quit) {
             while (SDL_PollEvent(&e) != 0) {
                 if (e.type == SDL_QUIT) {
@@ -90,15 +143,11 @@ int main(int argc, const char * argv[]) {
             SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
             SDL_RenderClear(gRenderer);
             
-            // TODO:  draw small red rect as bouncing circle
-            SDL_Rect circleRect = {
-                SCREEN_WIDTH / 2,
-                SCREENT_HEIGHT / 2,
-                15,
-                15
-            };
-            SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0x00, 0xFF);
-            SDL_RenderFillRect(gRenderer, &circleRect);
+            // move the dot
+            dot.move();
+            
+            // render
+            dot.render();
             
             // update screen
             SDL_RenderPresent(gRenderer);
