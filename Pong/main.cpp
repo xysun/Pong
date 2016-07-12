@@ -64,9 +64,9 @@ public:
     static const int DOT_WIDTH = 15;
     static const int DOT_HEIGHT = 15;
     
-    static const int DOT_VEL = 10;
+    static const int DOT_VEL = 15;
     
-    static const int DOT_MOVE = 200; // move per 500 ticks
+    static const int DOT_MOVE = 80; // move per 500 ticks
     
     Dot();
     
@@ -109,13 +109,16 @@ void Dot::move(){
     mPosX += mVelX;
     
     if ((mPosX < 0) || (mPosX + DOT_WIDTH > SCREEN_WIDTH)) {
-        mPosX -= mVelX; // TODO: bounce
+        // bounce off
+        mPosX -= mVelX;
+        mVelX = -1 * mVelX;
     }
     
     mPosY += mVelY;
     
     if ((mPosY < 0) || (mPosY + DOT_HEIGHT > SCREENT_HEIGHT)) {
         mPosY -= mVelY;
+        mVelY = -1 * mVelY;
     }
 }
 
