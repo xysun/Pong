@@ -27,12 +27,46 @@ SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
 
 
+class LTimer{
+public:
+    LTimer();
+    
+    void start();
+    
+    Uint32 getTicks();
+    
+private:
+    Uint32 mStartTicks;
+    
+    bool mStarted;
+};
+
+LTimer::LTimer(){
+    mStarted = false;
+    mStartTicks = 0;
+}
+
+void LTimer::start(){
+    mStarted = true;
+    mStartTicks = SDL_GetTicks();
+}
+
+Uint32 LTimer::getTicks(){
+    Uint32 time = 0;
+    if (mStarted) {
+        time = SDL_GetTicks() - mStartTicks;
+    }
+    return time;
+}
+
 class Dot{
 public:
     static const int DOT_WIDTH = 15;
     static const int DOT_HEIGHT = 15;
     
     static const int DOT_VEL = 10;
+    
+    static const int DOT_MOVE = 200; // move per 500 ticks
     
     Dot();
     
@@ -50,8 +84,10 @@ Dot::Dot(){
     mPosY = SCREENT_HEIGHT / 2;
     
     // random initialize velocity in [0, DOT_VEL]
-    mVelX = rand() % DOT_VEL;
-    mVelY = rand() % DOT_VEL;
+    srand (time(NULL));
+    
+    mVelX = (rand() % DOT_VEL) * (rand() % 2 ==1 ? -1:1);
+    mVelY = (rand() % DOT_VEL) * (rand() % 2 ==1 ? -1:1);
     
     printf("mVelX: %d\n", mVelX);
     printf("mVelY: %d\n", mVelY);
@@ -139,6 +175,11 @@ int main(int argc, const char * argv[]) {
         
         Dot dot;
         
+        LTimer timer;
+        timer.start();
+        
+        Uint32 t0 = timer.getTicks();
+        
         while (!quit) {
             while (SDL_PollEvent(&e) != 0) {
                 if (e.type == SDL_QUIT) {
@@ -150,8 +191,10 @@ int main(int argc, const char * argv[]) {
             SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
             SDL_RenderClear(gRenderer);
             
-            // move the dot
-            dot.move();
+            if (timer.getTicks() - t0 > dot.DOT_MOVE) {
+                dot.move();
+                t0 = timer.getTicks();
+            }
             
             // render
             dot.render();
