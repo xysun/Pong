@@ -64,7 +64,7 @@ public:
     static const int DOT_WIDTH = 15;
     static const int DOT_HEIGHT = 15;
     
-    static const int DOT_VEL = 15;
+    static const int DOT_VEL = 5;
     
     static const int DOT_MOVE = 80; // move per 500 ticks
     
@@ -141,7 +141,7 @@ bool init(){
         }
         else{
             // create renderer
-            gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+            gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
             if (gRenderer == NULL){
                 printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
                 success = false;
@@ -194,10 +194,7 @@ int main(int argc, const char * argv[]) {
             SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
             SDL_RenderClear(gRenderer);
             
-            if (timer.getTicks() - t0 > dot.DOT_MOVE) {
-                dot.move();
-                t0 = timer.getTicks();
-            }
+            dot.move();
             
             // render
             dot.render();
