@@ -20,12 +20,18 @@ bool init();
 // free media and shutdown SDL
 void close();
 
+bool checkCollision(SDL_Rect a, SDL_Rect b);
+
 // window
 SDL_Window* gWindow = NULL;
 
 // window renderer
 SDL_Renderer* gRenderer = NULL;
 
+
+bool checkCollision(SDL_Rect a, SDL_Rect b){
+    return false;
+}
 
 class LTimer{
 public:
@@ -148,7 +154,7 @@ public:
     
     Dot();
     
-    void move();
+    void move(Wall& wall);
     void render();
     
 private:
@@ -191,7 +197,7 @@ void Dot::render(){
     SDL_RenderFillRect(gRenderer, &circleRect);
 }
 
-void Dot::move(){
+void Dot::move(Wall& wall){
     
     mPosX += mVelX;
     
@@ -205,14 +211,14 @@ void Dot::move(){
     
     mPosY += mVelY;
     
-    if ((mPosY < 0) || (mPosY + DOT_HEIGHT > SCREENT_HEIGHT)) {
+    // if collide with wall, change Y (no need to change X)
+    if ((mPosY < 0) || (mPosY + DOT_HEIGHT > SCREENT_HEIGHT) || (checkCollision(mCollider, wall.getCollider()))) {
         mPosY -= mVelY;
         mVelY = -1 * mVelY;
     }
     
     mCollider.y = mPosY;
     
-    // TODO: if bounced with controlled wall, revert y
 }
 
 
@@ -290,7 +296,7 @@ int main(int argc, const char * argv[]) {
             SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
             SDL_RenderClear(gRenderer);
             
-            dot.move();
+            dot.move(wall);
             wall.move();
             
             // render
