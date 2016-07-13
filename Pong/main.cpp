@@ -59,14 +59,50 @@ Uint32 LTimer::getTicks(){
     return time;
 }
 
+class Wall{
+public:
+    static const int WALL_WIDTH = 200;
+    static const int WALL_HEIGHT = 20;
+    
+    static const int WALL_VEL = 5;
+    
+    Wall();
+    
+    void render();
+    
+private:
+    int mPosX, mPosY;
+    int mVelX, mVelY;
+    
+};
+
+Wall::Wall(){
+    mPosX = 10;
+    mPosY = SCREENT_HEIGHT - 2 * WALL_HEIGHT;
+    
+    mVelX = 0;
+    mVelY = 0;
+    
+}
+
+void Wall::render(){
+    SDL_Rect wallRect = {
+        mPosX,
+        mPosY,
+        WALL_WIDTH,
+        WALL_HEIGHT
+    };
+    SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0x00);
+    SDL_RenderDrawRect(gRenderer, &wallRect);
+}
+
+
 class Dot{
 public:
     static const int DOT_WIDTH = 15;
     static const int DOT_HEIGHT = 15;
     
     static const int DOT_VEL = 5;
-    
-    static const int DOT_MOVE = 80; // move per 500 ticks
     
     Dot();
     
@@ -177,6 +213,7 @@ int main(int argc, const char * argv[]) {
         SDL_Event e;
         
         Dot dot;
+        Wall wall;
         
         LTimer timer;
         timer.start();
@@ -198,6 +235,7 @@ int main(int argc, const char * argv[]) {
             
             // render
             dot.render();
+            wall.render();
             
             // update screen
             SDL_RenderPresent(gRenderer);
