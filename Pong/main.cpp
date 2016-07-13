@@ -69,6 +69,8 @@ public:
     Wall();
     
     void render();
+    void handleEvent(SDL_Event& e);
+    void move();
     
 private:
     int mPosX, mPosY;
@@ -94,6 +96,37 @@ void Wall::render(){
     };
     SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0x00);
     SDL_RenderDrawRect(gRenderer, &wallRect);
+}
+
+void Wall::handleEvent(SDL_Event& e){
+    if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
+        switch (e.key.keysym.sym) {
+            case SDLK_LEFT: mVelX -= WALL_VEL; break;
+            case SDLK_RIGHT: mVelX += WALL_VEL; break;
+        }
+    }
+    
+    else if (e.type == SDL_KEYUP && e.key.repeat == 0){
+        switch (e.key.keysym.sym) {
+            case SDLK_LEFT: mVelX += WALL_VEL; break;
+            case SDLK_RIGHT: mVelX -= WALL_VEL; break;
+        }
+    }
+}
+
+void Wall::move(){
+    mPosX += mVelX;
+    
+    if ((mPosX < 0) || (mPosX + WALL_WIDTH > SCREEN_WIDTH)) {
+        mPosX -= mVelX;
+    }
+    
+    mPosY += mVelY;
+    
+    if ((mPosY < 0) || (mPosY + WALL_HEIGHT > SCREENT_HEIGHT)) {
+        mPosY -= mVelY;
+    }
+    
 }
 
 
@@ -225,6 +258,8 @@ int main(int argc, const char * argv[]) {
                 if (e.type == SDL_QUIT) {
                     quit = true;
                 }
+                
+                wall.handleEvent(e);
             }
             
             // clear screen
@@ -232,6 +267,7 @@ int main(int argc, const char * argv[]) {
             SDL_RenderClear(gRenderer);
             
             dot.move();
+            wall.move();
             
             // render
             dot.render();
