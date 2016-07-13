@@ -71,10 +71,12 @@ public:
     void render();
     void handleEvent(SDL_Event& e);
     void move();
+    SDL_Rect getCollider(){return mCollider;};
     
 private:
     int mPosX, mPosY;
     int mVelX, mVelY;
+    SDL_Rect mCollider;
     
 };
 
@@ -84,6 +86,9 @@ Wall::Wall(){
     
     mVelX = 0;
     mVelY = 0;
+    
+    mCollider.w = WALL_WIDTH;
+    mCollider.h = WALL_HEIGHT;
     
 }
 
@@ -121,11 +126,15 @@ void Wall::move(){
         mPosX -= mVelX;
     }
     
+    mCollider.x = mPosX;
+    
     mPosY += mVelY;
     
     if ((mPosY < 0) || (mPosY + WALL_HEIGHT > SCREENT_HEIGHT)) {
         mPosY -= mVelY;
     }
+    
+    mCollider.y = mPosY;
     
 }
 
@@ -146,11 +155,20 @@ private:
     int mPosX, mPosY;
     
     int mVelX, mVelY;
+    
+    SDL_Rect mCollider;
+    
 };
+
+
 
 Dot::Dot(){
     mPosX = SCREEN_WIDTH / 2;
     mPosY = SCREENT_HEIGHT / 2;
+    
+    mCollider.w = DOT_WIDTH;
+    mCollider.h = DOT_HEIGHT;
+    
     
     // random initialize velocity in [0, DOT_VEL]
     srand (time(NULL));
@@ -174,7 +192,7 @@ void Dot::render(){
 }
 
 void Dot::move(){
-
+    
     mPosX += mVelX;
     
     if ((mPosX < 0) || (mPosX + DOT_WIDTH > SCREEN_WIDTH)) {
@@ -183,12 +201,18 @@ void Dot::move(){
         mVelX = -1 * mVelX;
     }
     
+    mCollider.x = mPosX;
+    
     mPosY += mVelY;
     
     if ((mPosY < 0) || (mPosY + DOT_HEIGHT > SCREENT_HEIGHT)) {
         mPosY -= mVelY;
         mVelY = -1 * mVelY;
     }
+    
+    mCollider.y = mPosY;
+    
+    // TODO: if bounced with controlled wall, revert y
 }
 
 
