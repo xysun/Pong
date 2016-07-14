@@ -30,7 +30,39 @@ SDL_Renderer* gRenderer = NULL;
 
 
 bool checkCollision(SDL_Rect a, SDL_Rect b){
-    return false;
+    
+    int leftA, leftB;
+    int rightA, rightB;
+    int topA, topB;
+    int bottomA, bottomB;
+    
+    leftA = a.x;
+    leftB = b.x;
+    rightA = a.x + a.w;
+    rightB = b.x + b.w;
+    topA = a.y;
+    topB = b.y;
+    bottomA = a.y + a.h;
+    bottomB = b.y + b.h;
+    
+    if (bottomA <= topB) {
+        return false;
+    }
+    
+    if (topA >= bottomB) {
+        return false;
+    }
+    
+    if (rightA <= leftB) {
+        return false;
+    }
+    
+    if (leftA >= rightB) {
+        return false;
+    }
+    
+    return true;
+    
 }
 
 class LTimer{
@@ -182,6 +214,10 @@ Dot::Dot(){
     mVelX = (rand() % DOT_VEL) * (rand() % 2 ==1 ? -1:1);
     mVelY = (rand() % DOT_VEL) * (rand() % 2 ==1 ? -1:1);
     
+    while (mVelY == 0) {
+        mVelY = (rand() % DOT_VEL) * (rand() % 2 ==1 ? -1:1);// make sure we always have Y velocity, otherwise will never collide
+    }
+    
     printf("mVelX: %d\n", mVelX);
     printf("mVelY: %d\n", mVelY);
 }
@@ -203,7 +239,7 @@ void Dot::move(Wall& wall){
     
     if ((mPosX < 0) || (mPosX + DOT_WIDTH > SCREEN_WIDTH)) {
         // bounce off
-        mPosX -= mVelX;
+        mPosX -= 2 * mVelX;
         mVelX = -1 * mVelX;
     }
     
@@ -213,7 +249,7 @@ void Dot::move(Wall& wall){
     
     // if collide with wall, change Y (no need to change X)
     if ((mPosY < 0) || (mPosY + DOT_HEIGHT > SCREENT_HEIGHT) || (checkCollision(mCollider, wall.getCollider()))) {
-        mPosY -= mVelY;
+        mPosY -= 2 * mVelY;
         mVelY = -1 * mVelY;
     }
     
