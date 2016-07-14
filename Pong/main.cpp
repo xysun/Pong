@@ -9,6 +9,7 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <stdlib.h>
+#include <SDL2_mixer/SDL_mixer.h>
 
 
 const int SCREEN_WIDTH = 640;
@@ -21,12 +22,16 @@ bool init();
 void close();
 
 bool checkCollision(SDL_Rect a, SDL_Rect b);
+bool loadMedia();
 
 // window
 SDL_Window* gWindow = NULL;
 
 // window renderer
 SDL_Renderer* gRenderer = NULL;
+
+Mix_Music* gMusic = NULL;
+Mix_Chunk* gHit = NULL;
 
 
 bool checkCollision(SDL_Rect a, SDL_Rect b){
@@ -239,8 +244,9 @@ void Dot::move(Wall& wall){
     
     if ((mPosX < 0) || (mPosX + DOT_WIDTH > SCREEN_WIDTH)) {
         // bounce off
-        mPosX -= 2 * mVelX;
+        mPosX -= 1 * mVelX;
         mVelX = -1 * mVelX;
+        Mix_PlayChannel(-1, gHit, 0);
     }
     
     mCollider.x = mPosX;
@@ -248,9 +254,17 @@ void Dot::move(Wall& wall){
     mPosY += mVelY;
     
     // if collide with wall, change Y (no need to change X)
-    if ((mPosY < 0) || (mPosY + DOT_HEIGHT > SCREENT_HEIGHT) || (checkCollision(mCollider, wall.getCollider()))) {
+    if ((mPosY < 0) || (mPosY + DOT_HEIGHT > SCREENT_HEIGHT)){
+        mPosY -= 1 * mVelY;
+        mVelY = -1 * mVelY;
+        Mix_PlayChannel(-1, gHit, 0);
+    }
+    
+    if (checkCollision(mCollider, wall.getCollider())) {
         mPosY -= 2 * mVelY;
         mVelY = -1 * mVelY;
+        // play sound
+        Mix_PlayChannel(-1, gHit, 0);
     }
     
     mCollider.y = mPosY;
@@ -262,7 +276,7 @@ bool init(){
     bool success = true;
     
     // initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         printf("SDL could not initialize! SDL error: %s\n", SDL_GetError());
         success = false;
     }
@@ -285,13 +299,45 @@ bool init(){
                 // initialize renderer color
                 SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
             }
+            
+            // initialize SDL_mixer
+            if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+                printf("SDL mixer could not initialize! SDL mixer error: %s\n", Mix_GetError());
+                success = false;
+            }
         }
     }
     
     return success;
 }
 
+bool loadMedia(){
+    bool success = true;
+    
+    // load music
+    gMusic = Mix_LoadMUS("media/beat.wav");
+    if (gMusic == NULL) {
+        printf("failed to load beat music! SDL error: %s\n", Mix_GetError());
+        success = false;
+    }
+    
+    gHit = Mix_LoadWAV("media/scratch.wav");
+    if (gMusic == NULL) {
+        printf("failed to load scratch effect! SDL error: %s\n", Mix_GetError());
+        success = false;
+    }
+
+    
+    return success;
+}
+
 void close(){
+    
+    Mix_FreeChunk(gHit);
+    gHit = NULL;
+    Mix_FreeMusic(gMusic);
+    gMusic = NULL;
+    
     SDL_DestroyRenderer(gRenderer);
     SDL_DestroyWindow(gWindow);
     gWindow = NULL;
@@ -307,41 +353,52 @@ int main(int argc, const char * argv[]) {
         printf("Failed to initialize!\n");
     }
     else{
-        bool quit = false;
         
-        SDL_Event e;
-        
-        Dot dot;
-        Wall wall;
-        
-        LTimer timer;
-        timer.start();
-        
-        Uint32 t0 = timer.getTicks();
-        
-        while (!quit) {
-            while (SDL_PollEvent(&e) != 0) {
-                if (e.type == SDL_QUIT) {
-                    quit = true;
+        if (!loadMedia()) {
+            printf("Failed to load media!\n");
+        }
+        else{
+            bool quit = false;
+            
+            SDL_Event e;
+            
+            Dot dot;
+            Wall wall;
+            
+            LTimer timer;
+            timer.start();
+            
+            // play music
+            Mix_PlayMusic(gMusic, -1);
+            
+            Uint32 t0 = timer.getTicks();
+            
+            while (!quit) {
+                while (SDL_PollEvent(&e) != 0) {
+                    if (e.type == SDL_QUIT) {
+                        quit = true;
+                    }
+                    
+                    wall.handleEvent(e);
                 }
                 
-                wall.handleEvent(e);
+                // clear screen
+                SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                SDL_RenderClear(gRenderer);
+                
+                dot.move(wall);
+                wall.move();
+                
+                // render
+                dot.render();
+                wall.render();
+                
+                // update screen
+                SDL_RenderPresent(gRenderer);
             }
             
-            // clear screen
-            SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-            SDL_RenderClear(gRenderer);
-            
-            dot.move(wall);
-            wall.move();
-            
-            // render
-            dot.render();
-            wall.render();
-            
-            // update screen
-            SDL_RenderPresent(gRenderer);
         }
+        
     }
     
     close();
