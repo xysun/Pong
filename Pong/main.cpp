@@ -10,6 +10,8 @@
 #include <iostream>
 #include <stdlib.h>
 #include <SDL2_mixer/SDL_mixer.h>
+#include <SDL2_ttf/SDL_ttf.h>
+#include <string>
 
 
 const int SCREEN_WIDTH = 640;
@@ -30,8 +32,10 @@ SDL_Window* gWindow = NULL;
 // window renderer
 SDL_Renderer* gRenderer = NULL;
 
+// sound effects
 Mix_Music* gMusic = NULL;
 Mix_Chunk* gHit = NULL;
+
 
 
 bool checkCollision(SDL_Rect a, SDL_Rect b){
@@ -69,6 +73,51 @@ bool checkCollision(SDL_Rect a, SDL_Rect b){
     return true;
     
 }
+
+
+class LTexture{
+public:
+    LTexture();
+    ~LTexture();
+    
+    bool loadFromRenderedText(std::string textureText, SDL_Color textColor);
+    
+    void free();
+    
+    void render(int x, int y);
+    
+private:
+    SDL_Texture* mTexture;
+    int mWidth;
+    int mHeignt;
+};
+
+// font
+TTF_Font* gFont = NULL;
+LTexture gTextTexture;
+
+LTexture::LTexture(){
+    mTexture = NULL;
+    mWidth = 0;
+    mHeignt = 0;
+}
+
+LTexture::~LTexture(){
+    free();
+}
+
+void LTexture::free(){
+    if (mTexture != NULL) {
+        SDL_DestroyTexture(mTexture);
+        mTexture = NULL;
+        mWidth = 0;
+        mHeignt = 0;
+    }
+}
+
+
+
+
 
 class LTimer{
 public:
@@ -221,6 +270,10 @@ Dot::Dot(){
     
     while (mVelY == 0) {
         mVelY = (rand() % DOT_VEL) * (rand() % 2 ==1 ? -1:1);// make sure we always have Y velocity, otherwise will never collide
+    }
+    
+    while (mVelX == 0) {
+        mVelX = (rand() % DOT_VEL) * (rand() % 2 ==1 ? -1:1);// make sure we're not purely on Y axis
     }
     
     printf("mVelX: %d\n", mVelX);

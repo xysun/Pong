@@ -10,6 +10,7 @@
 		9D166AAE1D33FF820064D4FF /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9D166AAD1D33FF820064D4FF /* main.cpp */; };
 		9D166AB51D33FF990064D4FF /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D166AB41D33FF990064D4FF /* SDL2.framework */; };
 		9D1CD4D61D37E3FF00F3346A /* SDL2_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D1CD4D51D37E3FF00F3346A /* SDL2_mixer.framework */; };
+		9D1CD4D81D37E5A600F3346A /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D1CD4D71D37E5A600F3346A /* SDL2_ttf.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,6 +30,7 @@
 		9D166AAD1D33FF820064D4FF /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		9D166AB41D33FF990064D4FF /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
 		9D1CD4D51D37E3FF00F3346A /* SDL2_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_mixer.framework; path = ../../../../../Library/Frameworks/SDL2_mixer.framework; sourceTree = "<group>"; };
+		9D1CD4D71D37E5A600F3346A /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,6 +38,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9D1CD4D81D37E5A600F3346A /* SDL2_ttf.framework in Frameworks */,
 				9D1CD4D61D37E3FF00F3346A /* SDL2_mixer.framework in Frameworks */,
 				9D166AB51D33FF990064D4FF /* SDL2.framework in Frameworks */,
 			);
@@ -47,6 +50,7 @@
 		9D166AA11D33FF820064D4FF = {
 			isa = PBXGroup;
 			children = (
+				9D1CD4D71D37E5A600F3346A /* SDL2_ttf.framework */,
 				9D1CD4D51D37E3FF00F3346A /* SDL2_mixer.framework */,
 				9D166AB41D33FF990064D4FF /* SDL2.framework */,
 				9D166AAC1D33FF820064D4FF /* Pong */,
