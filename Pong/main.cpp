@@ -36,6 +36,8 @@ SDL_Renderer* gRenderer = NULL;
 Mix_Music* gMusic = NULL;
 Mix_Chunk* gHit = NULL;
 
+bool lose = false;
+
 
 
 bool checkCollision(SDL_Rect a, SDL_Rect b){
@@ -115,8 +117,36 @@ void LTexture::free(){
     }
 }
 
+bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor){
+    
+    // bind the mTexture
+    
+    free();
+    
+    SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, textureText.c_str(), textColor);
+    if (textSurface == NULL) {
+        printf("Unable to render text surface! SDL_ttf error: %s\n", TTF_GetError());
+    }
+    else{
+        mTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+        if (mTexture == NULL) {
+            printf("Unable to create texture from rendered text surface! SDL_ttf error: %s\n", TTF_GetError());
+        }
+        else{
+            mWidth = textSurface->w;
+            mHeignt = textSurface->h;
+        }
+        
+        SDL_FreeSurface(textSurface);
+    }
+    
+    return mTexture != NULL;
+}
 
-
+void LTexture::render(int x, int y){
+    SDL_Rect renderQuad = {x,y,mWidth, mHeignt};
+    SDL_RenderCopy(gRenderer, mTexture, NULL, &renderQuad);
+}
 
 
 class LTimer{
@@ -164,6 +194,7 @@ public:
     void handleEvent(SDL_Event& e);
     void move();
     SDL_Rect getCollider(){return mCollider;};
+    int getPosY(){return mPosY;};
     
 private:
     int mPosX, mPosY;
@@ -242,6 +273,8 @@ public:
     
     void move(Wall& wall);
     void render();
+    
+    int getPosY(){return mPosY;};
     
 private:
     int mPosX, mPosY;
@@ -358,6 +391,12 @@ bool init(){
                 printf("SDL mixer could not initialize! SDL mixer error: %s\n", Mix_GetError());
                 success = false;
             }
+            
+            // initialize SDL_ttf
+            if (TTF_Init() == -1) {
+                printf("SDL_ttf could not initialize! SDL_ttf error: %s\n", TTF_GetError());
+                success = false;
+            }
         }
     }
     
@@ -379,12 +418,31 @@ bool loadMedia(){
         printf("failed to load scratch effect! SDL error: %s\n", Mix_GetError());
         success = false;
     }
+    
+    // open font
+    gFont = TTF_OpenFont("media/lazy.ttf", 28);
+    if (gFont == NULL) {
+        printf("failed to open font: TTF error: %s\n", TTF_GetError());
+        success = false;
+    }
+    else{
+        // pre-render text
+        SDL_Color textColor = {0,0,0};
+        if (!gTextTexture.loadFromRenderedText("You lose!", textColor)) {
+            printf("Failed to load text texture!\n");
+            success = false;
+        }
+    }
 
     
     return success;
 }
 
 void close(){
+    
+    gTextTexture.free();
+    TTF_CloseFont(gFont);
+    gFont = NULL;
     
     Mix_FreeChunk(gHit);
     gHit = NULL;
@@ -397,6 +455,8 @@ void close(){
     gRenderer = NULL;
     
     SDL_Quit();
+    TTF_Quit();
+    Mix_Quit();
 }
 
 
@@ -439,8 +499,21 @@ int main(int argc, const char * argv[]) {
                 SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
                 SDL_RenderClear(gRenderer);
                 
-                dot.move(wall);
-                wall.move();
+                if (!lose) { // no move once lose
+                    dot.move(wall);
+                    wall.move();
+                }
+                
+                
+                // check lose or not
+                if (dot.getPosY() > wall.getPosY() + wall.WALL_HEIGHT) {
+                    lose = true;
+                }
+                
+                // render text
+                if (lose) {
+                    gTextTexture.render(10, 10);
+                }
                 
                 // render
                 dot.render();
