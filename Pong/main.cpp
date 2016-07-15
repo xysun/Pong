@@ -12,6 +12,7 @@
 #include <SDL2_mixer/SDL_mixer.h>
 #include <SDL2_ttf/SDL_ttf.h>
 #include <string>
+#include "ltimer.hpp"
 
 
 const int SCREEN_WIDTH = 640;
@@ -36,8 +37,11 @@ SDL_Renderer* gRenderer = NULL;
 Mix_Music* gMusic = NULL;
 Mix_Chunk* gHit = NULL;
 
-bool lose = false;
+// font
+TTF_Font* gFont = NULL;
 
+
+bool lose = false;
 
 
 bool checkCollision(SDL_Rect a, SDL_Rect b){
@@ -94,8 +98,6 @@ private:
     int mHeignt;
 };
 
-// font
-TTF_Font* gFont = NULL;
 LTexture gTextTexture;
 
 LTexture::LTexture(){
@@ -149,37 +151,7 @@ void LTexture::render(int x, int y){
 }
 
 
-class LTimer{
-public:
-    LTimer();
-    
-    void start();
-    
-    Uint32 getTicks();
-    
-private:
-    Uint32 mStartTicks;
-    
-    bool mStarted;
-};
 
-LTimer::LTimer(){
-    mStarted = false;
-    mStartTicks = 0;
-}
-
-void LTimer::start(){
-    mStarted = true;
-    mStartTicks = SDL_GetTicks();
-}
-
-Uint32 LTimer::getTicks(){
-    Uint32 time = 0;
-    if (mStarted) {
-        time = SDL_GetTicks() - mStartTicks;
-    }
-    return time;
-}
 
 class Wall{
 public:
